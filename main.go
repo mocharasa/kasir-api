@@ -47,6 +47,9 @@ func main() {
 	categoryService := services.NewCategoryService(categoryRepo)
 	productHandler := handlers.NewProductHandler(productService)
 	categoryHandler := handlers.NewCategoryHandler(categoryService)
+	transactionRepo := repositories.NewTransactionRepository(db)
+	transactionService := services.NewTransactionService(transactionRepo)
+	transactionHandler := handlers.NewTransactionHandler(transactionService)
 
 	//4. setup routes
 	//health check
@@ -57,6 +60,7 @@ func main() {
 	http.HandleFunc("/api/product/", productHandler.HandleProductByID)
 	http.HandleFunc("/api/categories", categoryHandler.HandleCategories)
 	http.HandleFunc("/api/categories/", categoryHandler.HandleCategoryByID)
+	http.HandleFunc("/api/checkout", transactionHandler.HandleCheckout) // POST
 
 	//5. run server
 	addr := "0.0.0.0:" + config.Port
