@@ -61,8 +61,23 @@ func main() {
 	http.HandleFunc("/api/categories", categoryHandler.HandleCategories)
 	http.HandleFunc("/api/categories/", categoryHandler.HandleCategoryByID)
 	http.HandleFunc("/api/checkout", transactionHandler.HandleCheckout) // POST
+	//http.HandleFunc("/api/report/today", transactionHandler.HandleCheckout) // GET
 
-	//5. run server
+	// 5. Definisikan Handler untuk Root (Opsional, agar muncul saat web dibuka)
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(map[string]interface{}{
+			"status": "OK",
+			"routes": map[string]string{
+				"product":  "/api/product",
+				"category": "/api/categories",
+				"checkout": "/api/checkout",
+				"report":   "/api/report",
+			},
+		})
+	})
+
+	//6. run server
 	addr := "0.0.0.0:" + config.Port
 	fmt.Println("Server running di", addr)
 	err = http.ListenAndServe(addr, nil)
