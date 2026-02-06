@@ -44,17 +44,17 @@ func main() {
 	productRepo := repositories.NewProductRepository(db)
 	categoryRepo := repositories.NewCategoryRepository(db)
 	transactionRepo := repositories.NewTransactionRepository(db)
-	//reportRepo := repositories.NewReportRepository(db)
+	reportRepo := repositories.NewReportRepository(db)
 
 	productService := services.NewProductService(productRepo)
 	categoryService := services.NewCategoryService(categoryRepo)
 	transactionService := services.NewTransactionService(transactionRepo)
-	// reportService := services.NewReportService(reportRepo)
+	reportService := services.NewReportService(reportRepo)
 
 	productHandler := handlers.NewProductHandler(productService)
 	categoryHandler := handlers.NewCategoryHandler(categoryService)
 	transactionHandler := handlers.NewTransactionHandler(transactionService)
-	// reportHandler := handlers.NewReportHandler(reportService)
+	reportHandler := handlers.NewReportHandler(reportService)
 
 	//4. setup routes
 	//health check
@@ -66,8 +66,8 @@ func main() {
 	http.HandleFunc("/api/categories", categoryHandler.HandleCategories)
 	http.HandleFunc("/api/categories/", categoryHandler.HandleCategoryByID)
 	http.HandleFunc("/api/checkout", transactionHandler.HandleCheckout) // POST
-	//http.HandleFunc("/api/report/hari-ini", reportHandler.HandleReport) // GET
-	//http.HandleFunc("/api/report", reportHandler.HandleReport) // GET
+	http.HandleFunc("/api/report/hari-ini", reportHandler.HandleReport) // GET
+	http.HandleFunc("/api/report", reportHandler.HandleReport)          // GET
 
 	// 5. Definisikan Handler untuk Root (Opsional, agar muncul saat web dibuka)
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
