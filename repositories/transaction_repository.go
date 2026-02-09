@@ -7,7 +7,7 @@ import (
 	"kasir-api/models"
 )
 
-var ErrOutOfStock = errors.New("stok barang tersedia tidak mencukupi")
+var ErrOutOfStock = errors.New("stock not enough")
 
 type TransactionRepository struct {
 	db *sql.DB
@@ -39,7 +39,7 @@ func (repo *TransactionRepository) CreateTransaction(items []models.CheckoutItem
 			return nil, err
 		}
 
-		//VALIDASI STOCK
+		//VALIDASI STOCK (INI INTI PERBAIKAN)
 		if stock < item.Quantity {
 			return nil, fmt.Errorf("%w: %s", ErrOutOfStock, productName)
 		}
