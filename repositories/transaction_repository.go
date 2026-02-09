@@ -2,9 +2,12 @@ package repositories
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"kasir-api/models"
 )
+
+var ErrOutOfStock = errors.New("stock not enough")
 
 type TransactionRepository struct {
 	db *sql.DB
@@ -28,7 +31,7 @@ func (repo *TransactionRepository) CreateTransaction(items []models.CheckoutItem
 		var productPrice, stock int
 		var productName string
 
-		err := tx.QueryRow("SELECT name, price, stock FROM products WHERE id = $1", item.ProductID).Scan(&productName, &productPrice, &stock)
+		err := tx.QueryRow("SELECT name, price, stock FROM products WHERE id = $1 FOR UPDATE", item.ProductID).Scan(&productName, &productPrice, &stock)
 		if err == sql.ErrNoRows {
 			return nil, fmt.Errorf("product id %d not found", item.ProductID)
 		}
@@ -36,6 +39,10 @@ func (repo *TransactionRepository) CreateTransaction(items []models.CheckoutItem
 			return nil, err
 		}
 
+		//VALIDASI STOCK
+		if stock < item.Quantity {
+			return nil, fmt.Errorf("%w: %s", ErrOutOfStock, productName)
+		}
 		subtotal := productPrice * item.Quantity
 		totalAmount += subtotal
 
