@@ -7,7 +7,7 @@ import (
 	"kasir-api/models"
 )
 
-var ErrOutOfStock = errors.New("stock not enough")
+var ErrOutOfStock = errors.New("stok barang tidak mencukupi")
 
 type TransactionRepository struct {
 	db *sql.DB
