@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"kasir-api/database"
 	"kasir-api/handlers"
-	"kasir-api/middleware"
+	"kasir-api/middlewares"
 	"kasir-api/repositories"
 	"kasir-api/services"
 	"log"
@@ -44,7 +44,7 @@ func main() {
 	defer db.Close()
 
 	//3. dependency injection [harus diatas HandleFunc]
-	apiKeyMiddleware := middleware.APIKey(config.API_KEY)
+	apiKeyMiddleware := middlewares.APIKey(config.API_KEY)
 	productRepo := repositories.NewProductRepository(db)
 	categoryRepo := repositories.NewCategoryRepository(db)
 	transactionRepo := repositories.NewTransactionRepository(db)
@@ -65,13 +65,13 @@ func main() {
 	http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 		healthCheck(w, r)
 	})
-	http.HandleFunc("/api/product", productHandler.HandleProducts)
-	http.HandleFunc("/api/product/", apiKeyMiddleware(productHandler.HandleProductByID))
-	http.HandleFunc("/api/categories", categoryHandler.HandleCategories)
-	http.HandleFunc("/api/categories/", apiKeyMiddleware(categoryHandler.HandleCategoryByID))
-	http.HandleFunc("/api/checkout", apiKeyMiddleware(transactionHandler.HandleCheckout)) // POST
-	http.HandleFunc("/api/report/hari-ini", reportHandler.HandleReport)                   // GET
-	http.HandleFunc("/api/report", reportHandler.HandleReport)                            // GET
+	http.HandleFunc("/api/product", middlewares.CORS(middlewares.Logger(productHandler.HandleProducts)))
+	http.HandleFunc("/api/product/", middlewares.CORS(middlewares.Logger(apiKeyMiddleware(productHandler.HandleProductByID))))
+	http.HandleFunc("/api/categories", middlewares.CORS(middlewares.Logger(categoryHandler.HandleCategories)))
+	http.HandleFunc("/api/categories/", middlewares.CORS(middlewares.Logger(apiKeyMiddleware(categoryHandler.HandleCategoryByID))))
+	http.HandleFunc("/api/checkout", middlewares.CORS(middlewares.Logger(apiKeyMiddleware(transactionHandler.HandleCheckout)))) // POST
+	http.HandleFunc("/api/report/hari-ini", reportHandler.HandleReport)                                                         // GET
+	http.HandleFunc("/api/report", reportHandler.HandleReport)                                                                  // GET
 
 	// 5. Definisikan Handler untuk Root (Opsional, agar muncul saat web dibuka)
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
